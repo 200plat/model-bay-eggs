@@ -1178,7 +1178,7 @@
     <button type="button" id="mb-btn-eye" title="hide the other toolbar icons (animations keep running)">👁</button>
     <button type="button" id="mb-btn-music" title="toggle ambient music">🎵</button>
     <button type="button" id="mb-btn-speed" title="warp speed: 1x / 10x event rate">1x</button>
-    <button type="button" id="mb-btn-theme" title="cycle egg theme: minimal → sky → ground → spooky → festive → nature → everything">⬜</button>
+    <button type="button" id="mb-btn-theme" title="egg theme">⬜</button>
     <button type="button" id="mb-btn-theater" title="hide all characters and effects (animations pause invisibly)">🎭</button>
     <button type="button" id="mb-btn-ontop" title="toggle all effects on top of UI / behind UI">▽</button>
     <button type="button" id="mb-btn-festive" title="cycle festive mode: off → christmas → halloween → new year">⬜</button>
@@ -1249,7 +1249,7 @@
     const festIcon = { none: '⬜', christmas: '🎄', halloween: '🎃', newyear: '🎇' }[festive] || '⬜';
     el('mb-btn-festive').textContent = festIcon;
     const themeBtn = document.getElementById('mb-btn-theme');
-    if (themeBtn) { const cur = (store.get('theme', 'minimal')) || 'minimal'; themeBtn.textContent = THEME_ICON[cur] || themeBtn.textContent; }
+    if (themeBtn) { const cur = (store.get('theme', 'minimal')) || 'minimal'; themeBtn.textContent = THEME_ICON[cur] || themeBtn.textContent; themeBtn.title = THEME_TITLE[cur] + ' — click to cycle'; }
     el('mb-btn-theater').title = effectsVisible ? 'hide all characters & effects' : 'show all characters & effects';
   }
   document.getElementById('mb-btn-music').addEventListener('click', toggleMusic);
@@ -1279,10 +1279,13 @@
 
   // ---------------------------------------------------------- main loop
   let t = 0, lastTs = performance.now();
+  let frameFailures = 0;
   function frame(ts) {
     if (ts === undefined) ts = lastTs;
     const dt = Math.min(.05, Math.max(0, (ts - lastTs) / 1000)); lastTs = ts;
-    if (!effectsVisible) { requestAnimationFrame(frame); return; }
+
+    try {
+    if (!effectsVisible) return;
     const hyper = Date.now() < hyperUntil;
     const gpuF = ((window.__gpu || 0) / 100);
     t += (0.008 + gpuF * 0.05) * (hyper ? 3.2 : 1);
@@ -1355,7 +1358,13 @@
     for (let i = flyers.length - 1; i >= 0; i--) { const f = flyers[i]; f.t += dt; f.x += f.vx; if (f.rot !== undefined) f.rot += f.vr; drawFlyer(f); if ((f.dir > 0 && f.x > cvFront.width + 90) || (f.dir < 0 && f.x < -90)) flyers.splice(i, 1); }
     ctx = CTX_FRONT;
     for (let i = particles.length - 1; i >= 0; i--) { const p = particles[i]; p.x += p.vx; p.y += p.vy; p.vy += .09; p.life -= .022; if (p.life <= 0) p.life = 0; ctx.globalAlpha = p.life; ctx.fillStyle = p.hue; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1; }
-    requestAnimationFrame(frame);
+    } catch (err) {
+      frameFailures++;
+      if (frameFailures <= 3) console.warn('[eggs] one frame errored (loop keeps running):', err);
+      if (frameFailures > 40) { console.error('[eggs] too many frame errors — reloading page'); location.reload(); return; }
+    } finally {
+      requestAnimationFrame(frame);
+    }
   }
   if (!reduced) requestAnimationFrame(frame);
 
