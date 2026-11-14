@@ -1181,7 +1181,7 @@
     <button type="button" id="mb-btn-theme" title="egg theme">⬜</button>
     <button type="button" id="mb-btn-theater" title="hide all characters and effects (animations pause invisibly)">🎭</button>
     <button type="button" id="mb-btn-ontop" title="toggle all effects on top of UI / behind UI">▽</button>
-    <button type="button" id="mb-btn-festive" title="cycle festive mode: off → christmas → halloween → new year">⬜</button>
+    <button type="button" id="mb-btn-festive" title="festive — off — click to cycle">⬜</button>
     <button type="button" id="mb-btn-config" title="easter egg settings — toggle each event">⚙️</button>`;
   settingsBar.style.cssText = 'position:fixed;left:14px;bottom:14px;z-index:10;display:flex;gap:.35rem;transition:gap .25s';
   settingsBar.querySelectorAll('button').forEach(b => {
@@ -1246,16 +1246,19 @@
     el('mb-btn-speed').textContent = speed >= 10 ? '10x' : '1x';
     el('mb-btn-theater').textContent = effectsVisible ? '🎭' : '🫥';
     syncOnTopBtn();
-    const festIcon = { none: '⬜', christmas: '🎄', halloween: '🎃', newyear: '🎇' }[festive] || '⬜';
+    const FESTIVE_ICON = { none: '⬜', christmas: '🎄', halloween: '🎃', newyear: '🎇' };
+    const FESTIVE_TITLE = { none: 'festive — off', christmas: 'festive — 🎄 christmas', halloween: 'festive — 🎃 halloween', newyear: 'festive — 🎇 new year' };
+    const festIcon = FESTIVE_ICON[festive] || '⬜';
     el('mb-btn-festive').textContent = festIcon;
+    el('mb-btn-festive').title = (FESTIVE_TITLE[festive] || FESTIVE_TITLE.none) + ' — click to cycle';
     const themeBtn = document.getElementById('mb-btn-theme');
-    if (themeBtn) { const cur = (store.get('theme', 'minimal')) || 'minimal'; themeBtn.textContent = THEME_ICON[cur] || themeBtn.textContent; themeBtn.title = THEME_TITLE[cur] + ' — click to cycle'; }
+    if (themeBtn) { const cur = (store.get('theme', 'sky')) || 'sky'; themeBtn.textContent = THEME_ICON[cur] || themeBtn.textContent; themeBtn.title = THEME_TITLE[cur] + ' — click to cycle'; }
     el('mb-btn-theater').title = effectsVisible ? 'hide all characters & effects' : 'show all characters & effects';
   }
   document.getElementById('mb-btn-music').addEventListener('click', toggleMusic);
   document.getElementById('mb-btn-speed').addEventListener('click', toggleSpeed);
   document.getElementById('mb-btn-theme').addEventListener('click', () => {
-    const cur = store.get('theme', 'minimal') || 'minimal';
+    const cur = store.get('theme', 'sky') || 'sky';
     const idx = THEME_ORDER.indexOf(cur);
     const next = THEME_ORDER[(idx + 1) % THEME_ORDER.length];
     applyTheme(next);
@@ -1270,8 +1273,8 @@
     say(festive === 'none' ? 'festive mode off' : festive === 'christmas' ? '🎄 Merry Christm’as mode' : festive === 'halloween' ? '🎃 spooky season' : '🎇 sparkle mode armed');
   });
   // restore persisted theme on load
-  const savedTheme = store.get('theme', null);
-  if (savedTheme && THEMES[savedTheme]) applyTheme(savedTheme); else syncSettingsUI();
+  const savedTheme = store.get('theme', 'sky') || 'sky';
+  if (THEMES[savedTheme]) applyTheme(savedTheme); else syncSettingsUI();
 
   // ---------------------------------------------------------- console egg
   console.log('%c⚡ SPARK · MODEL BAY %c— zero clouds were consulted in the operation of this GPU', 'color:#b08cff;font-size:16px;font-weight:700', 'color:#8b98b4');
@@ -1284,24 +1287,35 @@
     if (ts === undefined) ts = lastTs;
     const dt = Math.min(.05, Math.max(0, (ts - lastTs) / 1000)); lastTs = ts;
 
-    try {
-    if (!effectsVisible) return;
-    const hyper = Date.now() < hyperUntil;
-    const gpuF = ((window.__gpu || 0) / 100);
-    t += (0.008 + gpuF * 0.05) * (hyper ? 3.2 : 1);
-    CTX_FRONT.clearRect(0, 0, cvFront.width, cvFront.height);
-    CTX_BACK.clearRect(0, 0, cvBack.width, cvBack.height);
-    ctx = CTX_BACK;
-    if (eggOn('skyline')) {
+    // Each stage of the frame runs in its own try/catch, so one broken egg can
+    // never stop the others. No host page is ever reloaded from here.
+    const safe = (label, fn) => {
+      try { fn(); } catch (err) {
+        frameFailures++;
+        if (frameFailures <= 3) console.warn('[eggs] ' + label + ' errored (other eggs keep running):', err);
+      }
+    };
+
+    if (!effectsVisible) { requestAnimationFrame(frame); return; }
+    safe('state', () => {
+      const hyper = Date.now() < hyperUntil;
+      const gpuF = ((window.__gpu || 0) / 100);
+      t += (0.008 + gpuF * 0.05) * (hyper ? 3.2 : 1);
+    });
+
+    try { CTX_FRONT.clearRect(0, 0, cvFront.width, cvFront.height); } catch (e) {}
+    try { CTX_BACK.clearRect(0, 0, cvBack.width, cvBack.height); } catch (e) {}
+
+    safe('skyline', () => {
+      ctx = CTX_BACK;
+      if (!eggOn('skyline')) return;
       ctx.save();
       const baseY = cvFront.height;
-      // occasionally one building "blacks out" for a few seconds
       if (!skyline.dark && Math.random() < 0.0008) skyline.dark = { idx: Math.floor(Math.random() * skyline.buildings.length), until: performance.now() + 15000 };
       if (skyline.dark && performance.now() > skyline.dark.until) skyline.dark = null;
       for (let bi = 0; bi < skyline.buildings.length; bi++) {
         const b = skyline.buildings[bi];
         const isDark = skyline.dark && skyline.dark.idx === bi;
-        // occasionally windows flip; a neighbor in the same building follows a beat later
         for (const w of b.windows) {
           if (Math.random() < 0.00028) {
             w.on = !w.on;
@@ -1309,10 +1323,8 @@
             if (nbr && Math.random() < 0.7) nbr.on = w.on;
           }
         }
-        // silhouette
         ctx.fillStyle = '#060a14';
         ctx.fillRect(b.x, baseY - b.h, b.w, b.h + 1);
-        // windows
         for (const w of b.windows) {
           if (!w.on || isDark) continue;
           const flick = 0.4 + 0.6 * (0.5 + 0.5 * Math.sin(t * 0.7 + w.phase));
@@ -1323,48 +1335,85 @@
           ctx.globalAlpha = 1;
         }
       }
-      // a rooftop aircraft-warning beacon: blinks once a second
       const beacon = skyline.buildings[skyline.beaconIdx];
       if (beacon) {
         const bx = beacon.x + beacon.w / 2, by = baseY - beacon.h;
-        const blink = (Math.sin(ts * 0.006) > 0);
+        const blink = (Math.sin((ts || 0) * 0.006) > 0);
         if (blink) {
           ctx.save(); ctx.shadowColor = '#ff5a5a'; ctx.shadowBlur = 10;
           ctx.fillStyle = '#ff5a5a'; ctx.beginPath(); ctx.arc(bx, by - 2, 2.3, 0, Math.PI * 2); ctx.fill(); ctx.restore();
         }
       }
       ctx.restore();
-    }
-    // sunrise/sunset horizon glow
-    const now = new Date();
-    const hour = now.getHours() + now.getMinutes() / 60;
-    let sunGlow = 0;
-    if (hour > 4.5 && hour < 8.5) sunGlow = Math.max(0, 1 - Math.abs(hour - 6.5) / 2);
-    else if (hour > 16.5 && hour < 21) sunGlow = Math.max(0, 1 - Math.abs(hour - 18.75) / 2.25);
-    if (sunGlow > 0.02) {
-      const g = ctx.createLinearGradient(0, cvFront.height * 0.55, 0, cvFront.height);
-      g.addColorStop(0, 'rgba(255,180,130,0)');
-      g.addColorStop(1, 'rgba(255,120,80,' + (0.28 * sunGlow) + ')');
-      ctx.fillStyle = g;
-      ctx.fillRect(0, cvFront.height * 0.5, cvFront.width, cvFront.height * 0.5);
-    }
-    ctx = layerOf('starfield');
-    if (eggOn('starfield')) for (const st of stars) { st.y += st.sp / 600 * (hyper ? 6 : 1); st.x += Math.sin(t + st.tw) * 0.00018; if (st.y > 1.02) { st.y = -0.02; st.x = Math.random(); } const a = 0.14 + 0.36 * (0.5 + 0.5 * Math.sin(t * 2 + st.tw)); ctx.beginPath(); ctx.fillStyle = hyper ? 'hsla(' + st.hue + ',90%,72%,' + (a + .15) + ')' : st.col; ctx.globalAlpha = hyper ? 1 : a; ctx.arc(st.x * cvFront.width, st.y * cvFront.height, st.r * (hyper ? 1.4 : 1), 0, Math.PI * 2); ctx.fill(); }
-    ctx.globalAlpha = 1;
-    updateEvents(dt, Date.now());
-    lastFlyer += dt * 1000;
-    if (eggOn('flyers') && lastFlyer > flyerInterval()) { spawnFlyer(); lastFlyer = 0; }
-    ctx = layerOf('flyers');
-    for (let i = flyers.length - 1; i >= 0; i--) { const f = flyers[i]; f.t += dt; f.x += f.vx; if (f.rot !== undefined) f.rot += f.vr; drawFlyer(f); if ((f.dir > 0 && f.x > cvFront.width + 90) || (f.dir < 0 && f.x < -90)) flyers.splice(i, 1); }
-    ctx = CTX_FRONT;
-    for (let i = particles.length - 1; i >= 0; i--) { const p = particles[i]; p.x += p.vx; p.y += p.vy; p.vy += .09; p.life -= .022; if (p.life <= 0) p.life = 0; ctx.globalAlpha = p.life; ctx.fillStyle = p.hue; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill(); ctx.globalAlpha = 1; }
-    } catch (err) {
-      frameFailures++;
-      if (frameFailures <= 3) console.warn('[eggs] one frame errored (loop keeps running):', err);
-      if (frameFailures > 40) { console.error('[eggs] too many frame errors — reloading page'); location.reload(); return; }
-    } finally {
-      requestAnimationFrame(frame);
-    }
+    });
+
+    safe('horizonGlow', () => {
+      const now = new Date();
+      const hour = now.getHours() + now.getMinutes() / 60;
+      let sunGlow = 0;
+      if (hour > 4.5 && hour < 8.5) sunGlow = Math.max(0, 1 - Math.abs(hour - 6.5) / 2);
+      else if (hour > 16.5 && hour < 21) sunGlow = Math.max(0, 1 - Math.abs(hour - 18.75) / 2.25);
+      if (sunGlow > 0.02) {
+        ctx = CTX_BACK;
+        const g = ctx.createLinearGradient(0, cvFront.height * 0.55, 0, cvFront.height);
+        g.addColorStop(0, 'rgba(255,180,130,0)');
+        g.addColorStop(1, 'rgba(255,120,80,' + (0.28 * sunGlow) + ')');
+        ctx.fillStyle = g;
+        ctx.fillRect(0, cvFront.height * 0.5, cvFront.width, cvFront.height * 0.5);
+      }
+    });
+
+    safe('starfield', () => {
+      ctx = layerOf('starfield');
+      if (!eggOn('starfield')) { ctx.globalAlpha = 1; return; }
+      const hyper = Date.now() < hyperUntil;
+      for (const st of stars) {
+        st.y += st.sp / 600 * (hyper ? 6 : 1);
+        st.x += Math.sin(t + st.tw) * 0.00018;
+        if (st.y > 1.02) { st.y = -0.02; st.x = Math.random(); }
+        const a = 0.14 + 0.36 * (0.5 + 0.5 * Math.sin(t * 2 + st.tw));
+        ctx.beginPath();
+        ctx.fillStyle = hyper ? 'hsla(' + st.hue + ',90%,72%,' + (a + .15) + ')' : st.col;
+        ctx.globalAlpha = hyper ? 1 : a;
+        ctx.arc(st.x * cvFront.width, st.y * cvFront.height, st.r * (hyper ? 1.4 : 1), 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    });
+
+    safe('events', () => updateEvents(dt, Date.now()));
+
+    safe('flyersSpawn', () => {
+      lastFlyer += dt * 1000;
+      if (eggOn('flyers') && lastFlyer > flyerInterval()) { spawnFlyer(); lastFlyer = 0; }
+    });
+
+    safe('flyerDraw', () => {
+      ctx = layerOf('flyers');
+      for (let i = flyers.length - 1; i >= 0; i--) {
+        const f = flyers[i];
+        f.t += dt; f.x += f.vx;
+        if (f.rot !== undefined) f.rot += f.vr;
+        drawFlyer(f);
+        if ((f.dir > 0 && f.x > cvFront.width + 90) || (f.dir < 0 && f.x < -90)) flyers.splice(i, 1);
+      }
+    });
+
+    safe('particles', () => {
+      ctx = CTX_FRONT;
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx; p.y += p.vy; p.vy += .09; p.life -= .022;
+        if (p.life <= 0) p.life = 0;
+        ctx.globalAlpha = p.life;
+        ctx.fillStyle = p.hue;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
+        ctx.globalAlpha = 1;
+      }
+    });
+
+    frameFailures = 0;
+    requestAnimationFrame(frame);
   }
   if (!reduced) requestAnimationFrame(frame);
 
