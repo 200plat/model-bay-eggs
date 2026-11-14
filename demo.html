@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Model Bay Eggs — demo</title>
+<style>
+  body { margin: 0; background: radial-gradient(1200px 600px at 50% -10%, #1a2440 0%, #0b0f17 60%); color: #e8ecf4; font-family: system-ui, sans-serif; padding: 2rem; }
+  h1 { color: #b08cff; }
+  button { background:#1a2338; color:#e8ecf4; border:1px solid #223049; border-radius:.5rem; padding:.6rem 1rem; cursor:pointer; margin:.25rem; }
+</style>
+</head>
+<body>
+<h1>⚡ Easter Eggs Demo</h1>
+<p>Click a button to trigger sky events. Konami code ↑↑↓↓←→←→BA works too.</p>
+<button onclick="ModelBayEggs.triggerAbduction()">🛸 abduct a cow now</button>
+<button onclick="ModelBayEggs.triggerWhale()">🐋 whale</button>
+<button onclick="ModelBayEggs.triggerEyes()">👀 eyes</button>
+<button onclick="ModelBayEggs.triggerShower()">🌠 meteor shower</button>
+<button onclick="ModelBayEggs.triggerISS()">🛰️ ISS</button>
+<button onclick="ModelBayEggs.spawnFlyer()">🛩️ spawn flyer</button>
+<button onclick="ModelBayEggs.hyperspace()">✦ Star Drive</button>
+<div id="log"></div>
+<script src="easter-eggs.js"></script>
+</body>
+</html>
