@@ -723,7 +723,7 @@
   function updateEvents(dt, now) {
     // fireflies
     if (eggOn('fireflies')) {
-      ctx = CTX_FRONT;
+      ctx = layerOf('fireflies');
       if ((fireflies.length < 12 && Math.random() < CD(0.008)) || fireflies.length < 4) fireflies.push({ x: Math.random() * cvFront.width, y: cvFront.height * rand(0.55, 0.92), t: Math.random() * 10, phase: Math.random() * 6.28, drift: rand(0.2, 0.7) });
       for (let i = fireflies.length - 1; i >= 0; i--) {
         const f = fireflies[i]; f.t += dt; f.x += Math.sin(f.t * 0.9 + f.phase) * f.drift * 0.6; f.y += Math.cos(f.t * 0.7) * f.drift * 0.35;
@@ -769,7 +769,7 @@
     }
     // festive: snowfall (christmas)
     if (festive === 'christmas' && eggOn('snow')) {
-      ctx = CTX_FRONT;
+      ctx = layerOf('snow');
       if (Math.random() < CD(0.5) && snowflakes.length < 180) snowflakes.push({ x: Math.random() * cvFront.width, y: -8, r: rand(1.2, 2.8), vy: rand(18, 42), phase: Math.random() * 6, drift: rand(0.14, 0.5) });
       for (let i = snowflakes.length - 1; i >= 0; i--) {
         const s = snowflakes[i]; s.y += s.vy * dt; s.x += Math.sin(s.y * 0.02 + s.phase) * s.drift;
@@ -833,7 +833,7 @@
     const litModes = { christmas: ['christmasLights', 'round'], halloween: ['halloweenLights', 'spooky'], newyear: ['newyearLights', 'star'] };
     const active = festive === 'christmas' || festive === 'halloween' || festive === 'newyear' ? litModes[festive] : null;
     if (active && eggOn(active[0])) {
-      ctx = CTX_FRONT;
+      ctx = layerOf(active[0]);
       const palettes = {
         round: ['#ff5a5a', '#7de08a', '#ffd24a', '#5ab4ff', '#ff8ce0', '#9fd0ff', '#b08cff'],
         spooky: ['#ff8c1a', '#f5f5f0', '#a055ff'],
@@ -893,7 +893,7 @@
     }
     // festive: halloween (bats + boo)
     if (festive === 'halloween' && eggOn('bats')) {
-      ctx = CTX_FRONT;
+      ctx = layerOf('bats');
       if (Math.random() < CD(0.05) && bats.length < 6) bats.push({ x: -20, y: rand(0.15, 0.5) * cvFront.height, t: 0, dir: 1, size: rand(0.8, 1.3) });
       for (let i = bats.length - 1; i >= 0; i--) {
         const b = bats[i]; b.t += dt; b.x += 3.0; const batY = b.y + Math.sin(b.t * 3.4) * 12;
@@ -1307,7 +1307,7 @@
     try { CTX_BACK.clearRect(0, 0, cvBack.width, cvBack.height); } catch (e) {}
 
     safe('skyline', () => {
-      ctx = CTX_BACK;
+      ctx = layerOf('skyline');
       if (!eggOn('skyline')) return;
       ctx.save();
       const baseY = cvFront.height;
