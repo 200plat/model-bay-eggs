@@ -1661,6 +1661,7 @@
     } else {
       darkBtn.style.borderColor = '';
       darkBtn.style.color = '';
+      settingsBar.querySelectorAll('button').forEach(b => { b.style.visibility = ''; });
       applyToolbar(toolbarOpen);
     }
   }
