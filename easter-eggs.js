@@ -115,7 +115,7 @@
     skyline: false, fireflies: false, comets: false, miniUfo: false, pumpkin: false,
     rocket: false, rainbow: false, paperPlane: false, asteroids: false, batSwarm: false, trainPass: false,
     christmasLights: false, halloweenLights: false, newyearLights: false,
-    static: true,
+    static: false,
   };
   const eggToggle = Object.assign({}, EGGS_TOGGLE, store.get('eggToggle', {}));
   const eggTop = Object.assign({}, EGGS_TOP, store.get('eggTop', {}));
@@ -134,7 +134,7 @@
     spooky: { on: {shower: 1, bats: 1, moon: 1, aurora: 1, abduction: 1, gopher: 1, pumpkin: 1, lightning: 1, snake: 1, batSwarm: 1, halloweenLights: 1}, top: {trail: 1}, festive: 'halloween' },
     festive: { on: {snow: 1, santa: 1, snake: 1, grandFireworks: 1, fireworks: 1, christmasLights: 1, cow: 1, trail: 1}, top: {trail: 1}, festive: 'christmas' },
     nature: { on: {starfield: 1, fireflies: 1, rain: 1, shower: 1, aurora: 1, moon: 1, eagle: 1, balloon: 1, whale: 1, eyes: 1, comets: 1, skyline: 1, trainPass: 1, trail: 1, cow: 1}, top: {trail: 1}, festive: 'none' },
-    all: { on: Object.fromEntries(Object.keys(EGGS_TOGGLE).map(k => [k, 1])), top: {trail: 1}, festive: 'newyear' },
+    all: { on: Object.fromEntries(Object.keys(EGGS_TOGGLE).filter(k => k !== 'static').map(k => [k, 1])), top: {trail: 1}, festive: 'newyear' },
   };
   // ---------------------------------------------------------- preview renderers
   // ---------------------------------------------------------- scene previews (settings panel)
@@ -1299,7 +1299,7 @@
       if (!staticUntil && now > nextStaticAt) { staticUntil = now + 1500; nextStaticAt = now + 80000 + Math.random() * 90000; }
       if (staticUntil && now > staticUntil) staticUntil = 0;
       if (staticUntil) {
-        ctx = CTX_FRONT;
+        ctx = layerOf('static');
         for (let i = 0; i < 620; i++) {
           ctx.globalAlpha = 0.16 + Math.random() * 0.3;
           ctx.fillStyle = Math.random() < 0.5 ? '#e8e8e8' : '#0b0b0b';
@@ -3206,7 +3206,7 @@
     });
 
     safe('particles', () => {
-      ctx = CTX_FRONT;
+      ctx = layerOf('trail');
       for (let i = particles.length - 1; i >= 0; i--) {
         const p = particles[i];
         p.x += p.vx; p.y += p.vy; p.vy += .09; p.life -= .022;
