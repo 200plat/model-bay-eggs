@@ -1615,7 +1615,7 @@
     <button type="button" id="mb-btn-ontop" title="toggle all effects on top of UI / behind UI">▽</button>
     <button type="button" id="mb-btn-festive" title="festive — off — click to cycle">⬜</button>
     <button type="button" id="mb-btn-config" title="easter egg settings — toggle each event">⚙️</button>`;
-  settingsBar.style.cssText = 'position:fixed;left:14px;bottom:14px;z-index:10;display:flex;gap:.35rem;transition:gap .25s';
+  settingsBar.style.cssText = 'position:fixed;left:14px;bottom:14px;z-index:9000;display:flex;gap:.35rem;transition:gap .25s';
   settingsBar.querySelectorAll('button').forEach(b => {
     b.style.cssText = 'background:rgba(19,26,40,.8);backdrop-filter:blur(3px);border:1px solid rgba(140,180,255,.45);border-radius:.6rem;color:#e8ecf4;min-width:54px;height:40px;padding:0 .35rem;font-size:17px;cursor:pointer';
   });
@@ -1651,7 +1651,7 @@
     darkMode = on; store.set('darkMode', on);
     darkOverlay.style.opacity = on ? '1' : '0';
     darkOverlay.style.pointerEvents = on ? 'auto' : 'none';
-    settingsBar.style.zIndex = on ? '70' : '';
+    settingsBar.style.zIndex = on ? '70' : '9000';
     settingsBar.querySelectorAll('button').forEach(b => {
       b.style.visibility = (!on || b.id === 'mb-btn-dark') ? '' : 'hidden';
     });
