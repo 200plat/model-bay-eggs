@@ -25,6 +25,8 @@ ModelBayEggs.toggleSpeed();         // 1x ↔ 10x event rate
 ModelBayEggs.openSettings();        // open egg panel
 ModelBayEggs.festive();             // returns 'none' | 'christmas' | 'halloween' | 'newyear'
 ModelBayEggs.setFestive(mode);      // set festive mode
+ModelBayEggs.scene;                 // returns current scene id ('none' | 'fireplace' | ...)
+ModelBayEggs.setScene('fireplace'); // full-screen background scene (mutually exclusive)
 ModelBayEggs.triggerAbduction / triggerWhale / triggerComet / triggerRocket / triggerRainbow /
 ModelBayEggs.triggerFireworks / triggerGopher / triggerBalloon / triggerLightning /
 ModelBayEggs.triggerTrain / triggerTrainPass / triggerEyes / triggerShower / triggerISS /
@@ -38,6 +40,7 @@ ModelBayEggs.triggerComet / triggerFireflies / (and more)
 - **Konami code** `↑↑↓↓←→←→BA` → 20s Star Drive; twice within 5s → Portal
 - **Bottom-left toolbar**: 👁 show/hide icons · 🔇 music · 1x/10x warp · theme cycle · 🎭 hide/show all effects · ▲▽ on-top/behind · 🎄 festive · ⚙️ settings panel
 - **⚙️ settings panel**: preset themes (minimal, sky life, ground life, spooky, festive, nature, everything) + per-egg toggle + ▲/▽ layer button + animated previews per row
+- **Scenes** (one at a time): 🔥 fireplace · 🌊 underwater · 🌋 volcano · 🌲 the woods · 🌵 sunset desert · 🔭 observatory — full-screen static-cached backgrounds with their own ambient animation, drawn behind the UI
 
 ## Notes
 
