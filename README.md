@@ -38,9 +38,17 @@ ModelBayEggs.triggerComet / triggerFireflies / (and more)
 ## Controls on page load
 
 - **Konami code** `↑↑↓↓←→←→BA` → 20s Star Drive; twice within 5s → Portal
-- **Bottom-left toolbar**: 👁 show/hide icons · 🔇 music · 1x/10x warp · theme cycle · 🎭 hide/show all effects · ▲▽ on-top/behind · 🎄 festive · ⚙️ settings panel
+- **Bottom-left toolbar**: 👁 show/hide icons · 🔇 music · 1x/10x warp · theme cycle · 🎭 hide/show all effects · ▲▽ on-top/behind · 🎄 festive · **🖼️ scenes cycle** · ⚙️ settings panel
 - **⚙️ settings panel**: preset themes (minimal, sky life, ground life, spooky, festive, nature, everything) + per-egg toggle + ▲/▽ layer button + animated previews per row
-- **Scenes** (one at a time): 🔥 fireplace · 🌊 underwater · 🌋 volcano · 🌲 the woods · 🌵 sunset desert · 🔭 observatory · 🕹️ 80s synthwave · 🟢 90s matrix · 🏞️ 2000s bliss · 🌈 happy · 🎆 excited — full-screen static-cached backgrounds with their own ambient animation, drawn behind the UI
+- **Scenes** (one at a time): 🔥 fireplace · 🌊 underwater · 🌋 volcano · 🌲 the woods · 🌵 sunset desert · 🔭 observatory · 🕹️ 80s synthwave · 🟢 90s matrix · 🏞️ 2000s bliss · 🌈 happy · 🎆 excited · 🛖 northern cabin · 💿 y2k · 🪔 70s lava lamps · 🚆 night train · 🕵️ film noir office · 📚 library at midnight — full-screen static-cached backgrounds with their own live ambient animation, drawn behind the UI
+- **Scene ambience** (off by default): ⚙️ → toggle — per-scene synthesized soundscapes (fire crackle, forest crickets, synthwave bass, train clacks…). No assets, all Web Audio
+- **Real moon phase** in the supermoon and all moon-bearing scenes (current lunation computed from date, no network)
+- **Latitude-driven sunrise/sunset glow** — set your latitude in ⚙️ to make the horizon light track the real twilight hours (default 40°N)
+- **scene-of-the-day** toggle in ⚙️ — one seeded scene per day, opt-in
+- **analog static** egg (off by default): silent burst of broadcast snow, occasional frame tear
+- **the skyline cat** — occasionally loafs on a rooftop and blinks at you
+- **the cow gaze** — every so often the cow stops and stares at you for three seconds
+- **the telescope cat** — petit by clicking the kitty loafed beneath the observatory telescope (it purrs)
 
 ## Notes
 
