@@ -40,7 +40,7 @@ ModelBayEggs.triggerComet / triggerFireflies / (and more)
 - **Konami code** `↑↑↓↓←→←→BA` → 20s Star Drive; twice within 5s → Portal
 - **Bottom-left toolbar**: 👁 show/hide icons · 🔇 music · 1x/10x warp · theme cycle · 🎭 hide/show all effects · ▲▽ on-top/behind · 🎄 festive · ⚙️ settings panel
 - **⚙️ settings panel**: preset themes (minimal, sky life, ground life, spooky, festive, nature, everything) + per-egg toggle + ▲/▽ layer button + animated previews per row
-- **Scenes** (one at a time): 🔥 fireplace · 🌊 underwater · 🌋 volcano · 🌲 the woods · 🌵 sunset desert · 🔭 observatory — full-screen static-cached backgrounds with their own ambient animation, drawn behind the UI
+- **Scenes** (one at a time): 🔥 fireplace · 🌊 underwater · 🌋 volcano · 🌲 the woods · 🌵 sunset desert · 🔭 observatory · 🕹️ 80s synthwave · 🟢 90s matrix · 🏞️ 2000s bliss · 🌈 happy · 🎆 excited — full-screen static-cached backgrounds with their own ambient animation, drawn behind the UI
 
 ## Notes
 
