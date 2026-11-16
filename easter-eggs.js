@@ -1187,6 +1187,7 @@
     <button type="button" id="mb-btn-music" title="toggle ambient music">🎵</button>
     <button type="button" id="mb-btn-speed" title="warp speed: 1x / 10x event rate">1x</button>
     <button type="button" id="mb-btn-theme" title="egg theme">⬜</button>
+    <button type="button" id="mb-btn-scene" title="background scenes — click to cycle">🏙️</button>
     <button type="button" id="mb-btn-theater" title="hide all characters and effects (animations pause invisibly)">🎭</button>
     <button type="button" id="mb-btn-ontop" title="toggle all effects on top of UI / behind UI">▽</button>
     <button type="button" id="mb-btn-festive" title="festive — off — click to cycle">⬜</button>
@@ -1214,87 +1215,12 @@
   eyeBtn.addEventListener('click', () => { toolbarOpen = !toolbarOpen; store.set('toolbarOpen', toolbarOpen); applyToolbar(toolbarOpen); });
   applyToolbar(toolbarOpen);
 
-  // ---------------------------------------------------------- effects master switch
-  let effectsVisible = store.get('effects', true);
-  function applyEffects(v) {
-    effectsVisible = v;
-    cvFront.style.display = v ? '' : 'none';
-    cvBack.style.display = v ? '' : 'none';
-  }
-  const theaterBtn = settingsBar.querySelector('#mb-btn-theater');
-  theaterBtn.addEventListener('click', () => {
-    effectsVisible = !effectsVisible;
-    store.set('effects', effectsVisible);
-    applyEffects(effectsVisible);
-    syncSettingsUI();
-  });
-  applyEffects(effectsVisible);
-
-  // on-top master toggle: same as the popup's "All effects draw on top" checkbox
-  const onTopBtn = settingsBar.querySelector('#mb-btn-ontop');
-  const allTopNow = () => Object.keys(EGGS_TOP).every(k => eggTop[k] !== false);
-  function syncOnTopBtn() {
-    onTopBtn.textContent = allTopNow() ? '▲' : '▽';
-    onTopBtn.title = allTopNow()
-      ? 'everything draws on top (click to put behind UI)'
-      : 'everything draws behind UI (click to put on top)';
-  }
-  onTopBtn.addEventListener('click', () => {
-    const v = !allTopNow();
-    Object.keys(EGGS_TOP).forEach(k => { eggTop[k] = v; });
-    saveEggs();
-    syncEggCheckboxes();
-    syncOnTopBtn();
-  });
-  syncOnTopBtn();
-  document.body.appendChild(settingsBar);
-  function syncSettingsUI() {
-    syncEggCheckboxes && syncEggCheckboxes();
-    el('mb-btn-music').textContent = musicOn ? '🎵' : '🔇';
-    el('mb-btn-speed').textContent = speed >= 10 ? '10x' : '1x';
-    el('mb-btn-theater').textContent = effectsVisible ? '🎭' : '🫥';
-    syncOnTopBtn();
-    const FESTIVE_ICON = { none: '⬜', christmas: '🎄', halloween: '🎃', newyear: '🎇' };
-    const FESTIVE_TITLE = { none: 'festive — off', christmas: 'festive — 🎄 christmas', halloween: 'festive — 🎃 halloween', newyear: 'festive — 🎇 new year' };
-    const festIcon = FESTIVE_ICON[festive] || '⬜';
-    el('mb-btn-festive').textContent = festIcon;
-    el('mb-btn-festive').title = (FESTIVE_TITLE[festive] || FESTIVE_TITLE.none) + ' — click to cycle';
-    const themeBtn = document.getElementById('mb-btn-theme');
-    if (themeBtn) { const cur = (store.get('theme', 'sky')) || 'sky'; themeBtn.textContent = THEME_ICON[cur] || themeBtn.textContent; themeBtn.title = THEME_TITLE[cur] + ' — click to cycle'; }
-    el('mb-btn-theater').title = effectsVisible ? 'hide all characters & effects' : 'show all characters & effects';
-  }
-  document.getElementById('mb-btn-music').addEventListener('click', toggleMusic);
-  document.getElementById('mb-btn-speed').addEventListener('click', toggleSpeed);
-  document.getElementById('mb-btn-theme').addEventListener('click', () => {
-    const cur = store.get('theme', 'sky') || 'sky';
-    const idx = THEME_ORDER.indexOf(cur);
-    const next = THEME_ORDER[(idx + 1) % THEME_ORDER.length];
-    applyTheme(next);
-    say('theme: ' + (THEME_TITLE[next] || next));
-  });
-  document.getElementById('mb-btn-config').addEventListener('click', openEggPanel);
-  document.getElementById('mb-btn-festive').addEventListener('click', () => {
-    const order = ['none', 'christmas', 'halloween', 'newyear'];
-    festive = order[(order.indexOf(festive) + 1) % order.length];
-    store.set('festive', festive);
-    syncSettingsUI();
-    say(festive === 'none' ? 'festive mode off' : festive === 'christmas' ? '🎄 Merry Christm’as mode' : festive === 'halloween' ? '🎃 spooky season' : '🎇 sparkle mode armed');
-  });
-  // restore persisted theme on load
-  const savedTheme = store.get('theme', 'sky') || 'sky';
-  if (THEMES[savedTheme]) applyTheme(savedTheme); else syncSettingsUI();
-  syncScenesUI();
-
-  // ---------------------------------------------------------- console egg
-  console.log('%c⚡ SPARK · MODEL BAY %c— zero clouds were consulted in the operation of this GPU', 'color:#b08cff;font-size:16px;font-weight:700', 'color:#8b98b4');
-  console.log('%cpsst… a certain key sequence ↑↑↓↓←→←→BA awakens the stars. Twice for the portal.', 'color:#566284');
-
   // ---------------------------------------------------------- full-screen scenes
   // Mutually exclusive background scenes drawn on the BACK layer. Each scene builds a
   // static paint into an offscreen cache once per resize, then animated bits on top.
   const SCENE_ORDER = ['none', 'fireplace', 'underwater', 'volcano', 'forest', 'desert', 'observatory', 'synthwave', 'matrix', 'bliss', 'happy', 'excited'];
   const SCENE = {
-    none: '✕ none — the regular background',
+    none: '🏙️ none — the regular background',
     fireplace: '🔥 fireplace — brick hearth & embers',
     underwater: '🌊 underwater — seaweed, rays & fish',
     volcano: '🌋 volcano — molten vent & ember rain',
@@ -1322,6 +1248,7 @@
     sceneFx.sparks.length = 0;
     if (!silent) say('scene: ' + (SCENE[scene] || scene));
     syncScenesUI();
+    syncSettingsUI();
   }
   function syncScenesUI() {
     const modal = document.getElementById('modelbay-eggpanel');
@@ -2141,6 +2068,94 @@
     else if (scene === 'happy') sceneHappyLive(W, H);
     else if (scene === 'excited') sceneExcitedLive(W, H);
   }
+
+
+  // ---------------------------------------------------------- effects master switch
+  let effectsVisible = store.get('effects', true);
+  function applyEffects(v) {
+    effectsVisible = v;
+    cvFront.style.display = v ? '' : 'none';
+    cvBack.style.display = v ? '' : 'none';
+  }
+  const theaterBtn = settingsBar.querySelector('#mb-btn-theater');
+  theaterBtn.addEventListener('click', () => {
+    effectsVisible = !effectsVisible;
+    store.set('effects', effectsVisible);
+    applyEffects(effectsVisible);
+    syncSettingsUI();
+  });
+  applyEffects(effectsVisible);
+
+  // on-top master toggle: same as the popup's "All effects draw on top" checkbox
+  const onTopBtn = settingsBar.querySelector('#mb-btn-ontop');
+  const allTopNow = () => Object.keys(EGGS_TOP).every(k => eggTop[k] !== false);
+  function syncOnTopBtn() {
+    onTopBtn.textContent = allTopNow() ? '▲' : '▽';
+    onTopBtn.title = allTopNow()
+      ? 'everything draws on top (click to put behind UI)'
+      : 'everything draws behind UI (click to put on top)';
+  }
+  onTopBtn.addEventListener('click', () => {
+    const v = !allTopNow();
+    Object.keys(EGGS_TOP).forEach(k => { eggTop[k] = v; });
+    saveEggs();
+    syncEggCheckboxes();
+    syncOnTopBtn();
+  });
+  syncOnTopBtn();
+  document.body.appendChild(settingsBar);
+  function syncSettingsUI() {
+    syncEggCheckboxes && syncEggCheckboxes();
+    el('mb-btn-music').textContent = musicOn ? '🎵' : '🔇';
+    el('mb-btn-speed').textContent = speed >= 10 ? '10x' : '1x';
+    el('mb-btn-theater').textContent = effectsVisible ? '🎭' : '🫥';
+    syncOnTopBtn();
+    const FESTIVE_ICON = { none: '⬜', christmas: '🎄', halloween: '🎃', newyear: '🎇' };
+    const FESTIVE_TITLE = { none: 'festive — off', christmas: 'festive — 🎄 christmas', halloween: 'festive — 🎃 halloween', newyear: 'festive — 🎇 new year' };
+    const festIcon = FESTIVE_ICON[festive] || '⬜';
+    el('mb-btn-festive').textContent = festIcon;
+    el('mb-btn-festive').title = (FESTIVE_TITLE[festive] || FESTIVE_TITLE.none) + ' — click to cycle';
+    const themeBtn = document.getElementById('mb-btn-theme');
+    if (themeBtn) { const cur = (store.get('theme', 'sky')) || 'sky'; themeBtn.textContent = THEME_ICON[cur] || themeBtn.textContent; themeBtn.title = THEME_TITLE[cur] + ' — click to cycle'; }
+    const sceneBtn = document.getElementById('mb-btn-scene');
+    if (sceneBtn) {
+      const cur = (store.get('scene', 'none')) || 'none';
+      sceneBtn.textContent = (SCENE[cur] || SCENE.none).split(' ')[0];
+      sceneBtn.title = (SCENE[cur] || SCENE.none) + ' — click to cycle';
+    }
+    el('mb-btn-theater').title = effectsVisible ? 'hide all characters & effects' : 'show all characters & effects';
+  }
+  document.getElementById('mb-btn-music').addEventListener('click', toggleMusic);
+  document.getElementById('mb-btn-speed').addEventListener('click', toggleSpeed);
+  document.getElementById('mb-btn-scene').addEventListener('click', () => {
+    const cur = (store.get('scene', 'none')) || 'none';
+    const idx = SCENE_ORDER.indexOf(cur);
+    const next = SCENE_ORDER[(idx + 1) % SCENE_ORDER.length];
+    setScene(next);
+  });
+  document.getElementById('mb-btn-theme').addEventListener('click', () => {
+    const cur = store.get('theme', 'sky') || 'sky';
+    const idx = THEME_ORDER.indexOf(cur);
+    const next = THEME_ORDER[(idx + 1) % THEME_ORDER.length];
+    applyTheme(next);
+    say('theme: ' + (THEME_TITLE[next] || next));
+  });
+  document.getElementById('mb-btn-config').addEventListener('click', openEggPanel);
+  document.getElementById('mb-btn-festive').addEventListener('click', () => {
+    const order = ['none', 'christmas', 'halloween', 'newyear'];
+    festive = order[(order.indexOf(festive) + 1) % order.length];
+    store.set('festive', festive);
+    syncSettingsUI();
+    say(festive === 'none' ? 'festive mode off' : festive === 'christmas' ? '🎄 Merry Christm’as mode' : festive === 'halloween' ? '🎃 spooky season' : '🎇 sparkle mode armed');
+  });
+  // restore persisted theme on load
+  const savedTheme = store.get('theme', 'sky') || 'sky';
+  if (THEMES[savedTheme]) applyTheme(savedTheme); else syncSettingsUI();
+  syncScenesUI();
+
+  // ---------------------------------------------------------- console egg
+  console.log('%c⚡ SPARK · MODEL BAY %c— zero clouds were consulted in the operation of this GPU', 'color:#b08cff;font-size:16px;font-weight:700', 'color:#8b98b4');
+  console.log('%cpsst… a certain key sequence ↑↑↓↓←→←→BA awakens the stars. Twice for the portal.', 'color:#566284');
 
   // ---------------------------------------------------------- main loop
   let t = 0, lastTs = performance.now();
