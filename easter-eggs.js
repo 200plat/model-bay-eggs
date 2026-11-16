@@ -1605,6 +1605,7 @@
   const settingsBar = document.createElement('div');
   settingsBar.id = 'modelbay-settings';
   settingsBar.innerHTML = `
+    <button type="button" id="mb-btn-dark" title="lights out — click to bring the house lights back up">🌑</button>
     <button type="button" id="mb-btn-eye" title="hide the other toolbar icons (animations keep running)">👁</button>
     <button type="button" id="mb-btn-music" title="toggle ambient music">🎵</button>
     <button type="button" id="mb-btn-speed" title="warp speed: 1x / 10x event rate">1x</button>
@@ -1613,8 +1614,7 @@
     <button type="button" id="mb-btn-theater" title="hide all characters and effects (animations pause invisibly)">🎭</button>
     <button type="button" id="mb-btn-ontop" title="toggle all effects on top of UI / behind UI">▽</button>
     <button type="button" id="mb-btn-festive" title="festive — off — click to cycle">⬜</button>
-    <button type="button" id="mb-btn-config" title="easter egg settings — toggle each event">⚙️</button>
-    <button type="button" id="mb-btn-dark" title="lights out — click to bring the house lights back up">🌑</button>`;
+    <button type="button" id="mb-btn-config" title="easter egg settings — toggle each event">⚙️</button>`;
   settingsBar.style.cssText = 'position:fixed;left:14px;bottom:14px;z-index:10;display:flex;gap:.35rem;transition:gap .25s';
   settingsBar.querySelectorAll('button').forEach(b => {
     b.style.cssText = 'background:rgba(19,26,40,.8);backdrop-filter:blur(3px);border:1px solid rgba(140,180,255,.45);border-radius:.6rem;color:#e8ecf4;min-width:54px;height:40px;padding:0 .35rem;font-size:17px;cursor:pointer';
@@ -1656,17 +1656,11 @@
       b.style.visibility = (!on || b.id === 'mb-btn-dark') ? '' : 'hidden';
     });
     if (on) {
-      darkBtn.style.filter = 'drop-shadow(0 0 9px rgba(255,190,90,.9)) brightness(1.1)';
-      darkBtn.style.animation = 'mb-dark-breathe 3.4s ease-in-out infinite';
-      // inline keyframes for the breathe
-      if (!document.getElementById('mb-dark-style')) {
-        const st = document.createElement('style'); st.id = 'mb-dark-style';
-        st.textContent = '@keyframes mb-dark-breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}';
-        document.head.appendChild(st);
-      }
+      darkBtn.style.borderColor = 'rgba(232,236,244,.7)';
+      darkBtn.style.color = '#e8ecf4';
     } else {
-      darkBtn.style.filter = '';
-      darkBtn.style.animation = '';
+      darkBtn.style.borderColor = '';
+      darkBtn.style.color = '';
       applyToolbar(toolbarOpen);
     }
   }
