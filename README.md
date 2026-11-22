@@ -16,6 +16,7 @@ Everything happens with no HTML/CSS requirements: fixed canvas behind/on top, au
 ## Files
 
 - `easter-eggs.js` — the whole library
+- `index.html` — this page: the library running live, with a button per event
 - `bare.html` — truly minimal page that includes only eggs.js (open in browser to watch "nothing" happen)
 - `demo.html` — a settings/museum page with one button per egg
 
