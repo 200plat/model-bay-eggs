@@ -17,8 +17,12 @@
     --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   }
   * { box-sizing: border-box; }
+  /* The scene draws behind the content, so the page's own background has to be
+     transparent — this is what the scene sits on. Without the eggs loaded you
+     still get the gradient, from the root element. */
+  html { background: radial-gradient(1200px 700px at 50% -15%, #1a2440 0%, var(--bg) 62%); }
   body {
-    margin: 0; background: radial-gradient(1200px 700px at 50% -15%, #1a2440 0%, var(--bg) 62%);
+    margin: 0; background: transparent;
     color: var(--text); font-family: system-ui, -apple-system, Segoe UI, sans-serif;
     line-height: 1.55;
   }
@@ -97,6 +101,28 @@
     host.appendChild(b);
   }
 </script>
+<script>
+  // This page opens with the desert running behind it, the nature theme, every
+  // effect on and on top, and the events at 10x. The library itself is neutral —
+  // these are the page's own choices, and they are cleared once so that everyone
+  // gets them, then left alone.
+  try {
+    if (!localStorage.getItem('modelbay:page-3')) {
+      localStorage.setItem('modelbay:page-2', '1');
+      localStorage.setItem('modelbay:theme', '"nature"');
+      localStorage.setItem('modelbay:scene', '"desert"');
+      localStorage.setItem('modelbay:speed', '10');
+    }
+  } catch (e) {}
+</script>
 <script src="easter-eggs.js"></script>
+<script>
+  // The theme preset decides which eggs run and which layer they draw on, and it
+  // applies when the library loads. Put everything on top of the page after it.
+  (function () {
+    var b = document.getElementById('mb-btn-ontop');
+    if (b && b.textContent === '\u25bd') b.click();
+  })();
+</script>
 </body>
 </html>
