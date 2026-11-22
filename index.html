@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Model Bay — Easter Eggs</title>
+<meta name="description" content="A zero-dependency canvas + Web Audio easter-egg layer for any HTML page.">
+<style>
+  :root {
+    --bg: #0b0f17;
+    --panel: #131a28;
+    --edge: #223049;
+    --accent: #6ea8fe;
+    --violet: #b08cff;
+    --text: #e8ecf4;
+    --dim: #8b98b4;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: radial-gradient(1200px 700px at 50% -15%, #1a2440 0%, var(--bg) 62%);
+    color: var(--text); font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+    line-height: 1.55;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 0 1.2rem; }
+  header { padding: 3.2rem 0 1.6rem; }
+  h1 { font-size: clamp(2rem, 6vw, 3rem); margin: 0 0 .4rem; letter-spacing: -0.02em; }
+  h1 span { color: var(--violet); }
+  .tag { color: var(--dim); font-size: 1.05rem; margin: 0 0 1.6rem; max-width: 56ch; }
+  .drop { border: 1px solid var(--edge); background: #05070c; padding: 1rem 1.1rem; font-family: var(--mono); font-size: .92rem; overflow-x: auto; }
+  .drop b { color: var(--accent); font-weight: 600; }
+  .drop i { color: var(--dim); font-style: normal; }
+  h2 { font-size: .8rem; letter-spacing: .18em; text-transform: uppercase; color: var(--dim); margin: 2.6rem 0 .9rem; font-weight: 600; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: .45rem; }
+  button.egg {
+    background: var(--panel); color: var(--text); border: 1px solid var(--edge);
+    border-radius: .5rem; padding: .6rem .8rem; cursor: pointer; text-align: left;
+    font: inherit; font-size: .9rem; transition: border-color .15s, background .15s;
+  }
+  button.egg:hover { border-color: var(--accent); background: #182238; }
+  button.egg:active { transform: translateY(1px); }
+  .note { color: var(--dim); font-size: .88rem; margin: .8rem 0 0; }
+  footer { border-top: 1px solid var(--edge); margin-top: 3rem; padding: 1.6rem 0 2.4rem; color: var(--dim); font-size: .86rem; }
+  footer a { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Model Bay <span>Easter Eggs</span></h1>
+    <p class="tag">
+      A zero-dependency canvas + Web Audio easter-egg layer for any HTML page.
+      One script tag and you get a star field, a whale, the space station going over,
+      fireworks, a portal, a cow, and a handful of full-screen scenes to sit behind it all.
+    </p>
+    <div class="drop"><b>&lt;script</b> src=<i>"easter-eggs.js"</i><b>&gt;&lt;/script&gt;</b></div>
+  </header>
+
+  <h2>Try them</h2>
+  <div class="grid" id="eggs"></div>
+  <p class="note">
+    These buttons are on this page for real — the layer is loaded right now, running
+    behind this text. The bar in the bottom-left corner is part of the library too:
+    the gear opens the panel, the theatre mask stops everything, the stars change the
+    background.
+  </p>
+
+  <footer>
+    <p>
+      <a href="https://github.com/200plat/model-bay-eggs">Source</a> ·
+      <a href="https://github.com/200plat/model-bay-eggs#readme">README and the full API</a> ·
+      <a href="bare.html">bare.html</a> (the minimal page) ·
+      <a href="demo.html">demo.html</a>
+    </p>
+    <p>PolyForm Noncommercial — free for personal and non-commercial use.</p>
+  </footer>
+</div>
+
+<script>
+  // One button per event, so the page is a museum of what is in the library.
+  const EGGS = [
+    ['Star Drive', 'hyperspace'], ['Portal', 'triggerPortal'], ['Fireworks', 'triggerFireworks'],
+    ['Meteor shower', 'triggerShower'], ['The whale', 'triggerWhale'], ['Eyes', 'triggerEyes'],
+    ['The space station', 'triggerISS'], ['The moon', 'triggerMoon'], ['Aurora', 'triggerAurora'],
+    ['Rain', 'triggerRain'], ['Abduct a cow', 'triggerAbduction'], ['A paper plane', 'triggerPaperPlane'],
+    ['Balloons', 'triggerBalloon'], ['Lightning', 'triggerLightning'], ['A comet', 'triggerComet'],
+    ['A rocket', 'triggerRocket'], ['A flyer', 'spawnFlyer'], ['The gopher', 'triggerGopher'],
+    ['Asteroids', 'triggerAsteroids'], ['A train', 'triggerTrainPass'], ['An astronaut', 'triggerAstronaut'],
+    ['Fireflies', 'triggerFireflies'], ['A wish', 'wish']
+  ];
+  const host = document.getElementById('eggs');
+  for (const [label, fn] of EGGS) {
+    const b = document.createElement('button');
+    b.className = 'egg';
+    b.textContent = label;
+    b.onclick = () => { if (window.ModelBayEggs && ModelBayEggs[fn]) ModelBayEggs[fn](); };
+    host.appendChild(b);
+  }
+</script>
+<script src="easter-eggs.js"></script>
+</body>
+</html>
